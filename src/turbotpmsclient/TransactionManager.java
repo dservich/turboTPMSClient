@@ -36,7 +36,7 @@ public class TransactionManager implements Runnable {
             DataOutputStream dataOut = new DataOutputStream(outToServer);
 
             dataOut.writeUTF(transaction);
-            dataOut.close();
+            //dataOut.close();
         } catch (IOException e) {
             System.out.println("IOException in TransactionManager completeTransaction()");
         }
