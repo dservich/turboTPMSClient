@@ -5,6 +5,8 @@
  */
 package turbotpmsclient;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Dan
@@ -24,6 +26,44 @@ public class ClientUI extends javax.swing.JFrame {
         transactionTextArea.setEditable(false);
         transactionTextArea.setLineWrap(true);
         itemTextField.requestFocusInWindow();
+
+        transactionTextArea.append("Welcome to the transaction manager.");
+        transactionTextArea.append("\nBelow are the items that we have, the cost of each, and the quantity we have.");
+        transactionTextArea.append("\n\nItem Name | Price | Quantity\n");
+        ArrayList<InventoryItem> list = InventoryList.getList();
+        for (InventoryItem item : list) {
+            transactionTextArea.append(item.getName() + " | " + item.getPrice() + " | " + item.getQuantity() + "\n");
+        }
+    }
+
+    public int checkForItem(String itemName) {
+        ArrayList<InventoryItem> list = InventoryList.getList();
+        for (int i = 0; i < list.size(); i++) {
+            if (itemName.equals(list.get(i).getName())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int checkItemQuantity(String itemName) {
+        ArrayList<InventoryItem> list = InventoryList.getList();
+        for (int i = 0; i < list.size(); i++) {
+            if (itemName.equals(list.get(i).getName())) {
+                return list.get(i).getQuantity();
+            }
+        }
+        return -1;
+    }
+
+    public double getTotal(String item, int quant) {
+        ArrayList<InventoryItem> list = InventoryList.getList();
+        for (int i = 0; i < list.size(); i++) {
+            if (item.equals(list.get(i).getName())) {
+                return list.get(i).getPrice() * quant;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -119,19 +159,36 @@ public class ClientUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void purchaseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_purchaseButtonActionPerformed
-        String purchase = "";
-        purchase += "P|" + itemTextField.getText().toString() + "|" + quantityTextField.getText().toString();
-        TransactionManager transaction = new TransactionManager(purchase);
-        Thread thread = new Thread(transaction);
-        thread.start();
+        String itemName = itemTextField.getText();
+        int quantity = Integer.parseInt(quantityTextField.getText());
+
+        if ((checkForItem(itemName) != -1) && (quantity <= checkItemQuantity(itemName))) {
+            double total = getTotal(itemName, quantity);
+            transactionTextArea.append("\n\nNow Purchasing " + quantity + "  " + itemName + "(s) for $" + total);
+            String purchase = "";
+            purchase += "P|" + itemName + "|" + quantity;
+            TransactionManager transaction = new TransactionManager(purchase);
+            Thread thread = new Thread(transaction);
+            thread.start();
+        } else {
+            transactionTextArea.append("\n\n Error in your purchase. Check the Item name and quantity to ensure they are valid.");
+        }
+
+
     }//GEN-LAST:event_purchaseButtonActionPerformed
 
     private void returnButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnButtonActionPerformed
-        String ret = "";
-        ret += "R|" + itemTextField.getText().toString() + "|" + quantityTextField.getText().toString();
-        TransactionManager transaction = new TransactionManager(ret);
-        Thread thread = new Thread(transaction);
-        thread.start();
+        String itemName = itemTextField.getText();
+        if ((checkForItem(itemName) != -1)) {
+            String ret = "";
+            ret += "R|" + itemTextField.getText().toString() + "|" + quantityTextField.getText().toString();
+            TransactionManager transaction = new TransactionManager(ret);
+            Thread thread = new Thread(transaction);
+            thread.start();
+        }
+        else {
+            transactionTextArea.append("\n\n Error in your return. Check the Item name to ensure it is valid.");
+        }
     }//GEN-LAST:event_returnButtonActionPerformed
 
     /**

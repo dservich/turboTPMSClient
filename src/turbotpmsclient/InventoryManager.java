@@ -67,7 +67,7 @@ public class InventoryManager implements Runnable {
                 System.out.println("Here is the Inventory List:::\n" + InventoryList.getList().toString());
             }
         } catch (IOException e) {
-            System.out.println("IOException in InventoryManager makeConnection()");
+            System.out.println("IOException in InventoryManager getInventory()");
         }
 
     }
