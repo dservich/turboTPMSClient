@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  *
@@ -18,46 +19,57 @@ import java.net.Socket;
  */
 public class InventoryManager implements Runnable {
 
+    Socket serverConnection;
+
     @Override
     public void run() {
-
-        String serverName = "localhost";
-        int port = 5001;
-        Socket serverConnection = makeConnection(serverName, port);
-
+        serverConnection = ServerConnection.getConnection();
+        getInventory();
     }
 
     public InventoryManager(ServerConnection conn) {
 
     }
 
-    public static Socket makeConnection(String serverName, int port) {
-        Socket serverConnection = null;
+    public void getInventory() {
+
         try {
-            System.out.println("Connecting to " + serverName + " on port " + port);
-            serverConnection = new Socket(serverName, port);
+            System.out.println("Connecting to localhost on port 5001");
+
             System.out.println("Just connected to " + serverConnection.getRemoteSocketAddress());
-            
+
             while (true) {
                 System.out.println("Waiting for inventory from Server");
+
                 InputStream inFromServer = serverConnection.getInputStream();
                 DataInputStream dataIn = new DataInputStream(inFromServer);
-                System.out.println("Server says: " + dataIn.readUTF());
                 String data = dataIn.readUTF();
-                System.out.println("here is the data:::: \n" + data);
+
+                System.out.println("Server says: " + data);
+
                 String[] inventory = data.split("#");
+
                 for (int i = 0; i < inventory.length; i++) {
-                    String[] inventoryItem = inventory[i].split("|");
+                    System.out.println(inventory[i]);
+                }
+
+                for (int i = 0; i < inventory.length; i++) {
+                    System.out.println(inventory[i]);
+                    String[] inventoryItem = inventory[i].split(":::");
+                    for (int j = 0; j < inventoryItem.length; j++) {
+                        System.out.println(inventoryItem[j]);
+                    }
                     String name = inventoryItem[0];
                     int quantity = Integer.parseInt(inventoryItem[1]);
                     double price = Double.parseDouble(inventoryItem[2]);
                     InventoryList.add(new InventoryItem(name, quantity, price));
                 }
+                System.out.println("Here is the Inventory List:::\n" + InventoryList.getList().toString());
             }
         } catch (IOException e) {
             System.out.println("IOException in InventoryManager makeConnection()");
         }
-        return serverConnection;
+
     }
 
 }
