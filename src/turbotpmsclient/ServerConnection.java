@@ -26,4 +26,8 @@ public class ServerConnection {
     public static Socket getConnection(){
         return connection;
     }
+    
+    public static void close() throws IOException{
+        connection.close();
+    }
 }
